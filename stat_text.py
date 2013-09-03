@@ -72,10 +72,14 @@ class StatText(object):
     @classmethod
     def simplify(cls, text):
         text = unicode(text)
+
+        dash_char_numbers = [45, 2012, 2013, 2014, 2015, 2053]
+        convert_hyphens_to_spaces = dict((char_number, u' ') for char_number in dash_char_numbers)
         kill_symbols_punctuation_digits = dict((char_number, None) for char_number in xrange(sys.maxunicode)
                                                if unicodedata.category(unichr(char_number))[0] in ['P', 'S', 'N'])
 
-        nice_character_text = text.translate(kill_symbols_punctuation_digits).lower()
+        no_hyphens_text = text.translate(convert_hyphens_to_spaces)
+        nice_character_text = no_hyphens_text.translate(kill_symbols_punctuation_digits).lower()
         return ' '.join(nice_character_text.split())
 
     def get_ngrams_list(self, length=1, prefix=None):
