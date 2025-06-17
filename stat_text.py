@@ -12,7 +12,7 @@ def return_value(value):
 
 class TextMarkovModel(object):
     def __init__(self, initial_disribution, conditional_distribution, fake_zero=None):
-        self.n_gram_length = len(initial_disribution.keys()[0])
+        self.n_gram_length = len(list(initial_disribution.keys())[0])
         self.fake_zero = fake_zero if fake_zero is not None else 0.000001
         self.initial_disribution = collections.defaultdict(return_value(self.fake_zero), initial_disribution)
         self.conditional_distribution = conditional_distribution
@@ -23,8 +23,8 @@ class TextMarkovModel(object):
             return_value(collections.defaultdict(return_value(self.fake_zero))), conditional_distribution)
 
     def sample_from_distribution(self, distribution):
-        keys = distribution.keys()
-        values = np.array(distribution.values())
+        keys = list(distribution.keys())
+        values = np.array(list(distribution.values()))
 
         if len(keys) == 0:
             return self.fake_zero
@@ -41,7 +41,7 @@ class TextMarkovModel(object):
 
         char_probabilities = np.zeros(len(input_string) - self.n_gram_length + 1)
         char_probabilities[0] = self.initial_disribution[input_string[0:self.n_gram_length]]
-        for i in xrange(1, len(input_string) - self.n_gram_length + 1):
+        for i in range(1, len(input_string) - self.n_gram_length + 1):
             text_segment = input_string[i:i+self.n_gram_length]
             prefix = text_segment[0:-1]
             last_character = text_segment[-1]
@@ -56,7 +56,7 @@ class TextMarkovModel(object):
         sample = self.sample_from_distribution(self.initial_disribution)
         chars = [c for c in sample]
         prefix = sample[1:]
-        for i in xrange(size - self.n_gram_length):
+        for i in range(size - self.n_gram_length):
             distribution = self.conditional_distribution[prefix]
             next_char = self.sample_from_distribution(distribution)
             chars.append(next_char)
@@ -71,12 +71,12 @@ class StatText(object):
 
     @classmethod
     def simplify(cls, text):
-        text = unicode(text)
+        text = str(text)
 
         dash_char_numbers = [45, 2012, 2013, 2014, 2015, 2053]
         convert_hyphens_to_spaces = dict((char_number, u' ') for char_number in dash_char_numbers)
-        kill_symbols_punctuation_digits = dict((char_number, None) for char_number in xrange(sys.maxunicode)
-                                               if unicodedata.category(unichr(char_number))[0] in ['P', 'S', 'N'])
+        kill_symbols_punctuation_digits = dict((char_number, None) for char_number in range(sys.maxunicode)
+                                               if unicodedata.category(chr(char_number))[0] in ['P', 'S', 'N'])
 
         no_hyphens_text = text.translate(convert_hyphens_to_spaces)
         nice_character_text = no_hyphens_text.translate(kill_symbols_punctuation_digits).lower()
@@ -133,7 +133,7 @@ class StatText(object):
             probabilities[prefix][suffix] += 1
 
         for prefix in probabilities:
-            normalizer = float(np.sum(probabilities[prefix].values()))
+            normalizer = float(np.sum(list(probabilities[prefix].values())))
             probabilities[prefix] = pd.Series(probabilities[prefix]) / normalizer
             probabilities[prefix] = probabilities[prefix].to_dict()
 
