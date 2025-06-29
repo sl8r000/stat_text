@@ -22,7 +22,7 @@ class TextMarkovModel(object):
         self.conditional_distribution = collections.defaultdict(
             return_value(collections.defaultdict(return_value(self.fake_zero))), conditional_distribution)
 
-    def sample_from_distribution(self, distribution):
+    def sample(self, distribution):
         keys = distribution.keys()
         values = np.array(distribution.values())
 
@@ -53,12 +53,12 @@ class TextMarkovModel(object):
             return np.exp(np.sum(np.log(char_probabilities)))
 
     def generate_text(self, size):
-        sample = self.sample_from_distribution(self.initial_disribution)
+        sample = self.sample(self.initial_disribution)
         chars = [c for c in sample]
         prefix = sample[1:]
         for i in xrange(size - self.n_gram_length):
             distribution = self.conditional_distribution[prefix]
-            next_char = self.sample_from_distribution(distribution)
+            next_char = self.sample(distribution)
             chars.append(next_char)
             prefix = prefix[1:] + next_char
 
